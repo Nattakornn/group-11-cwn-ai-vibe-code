@@ -1,0 +1,5 @@
+node_modules
+.next
+BUGS.md
+CONTRACT-NOTES
+*.test.ts

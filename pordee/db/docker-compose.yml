@@ -1,0 +1,27 @@
+name: pordee-db
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pordee-db
+    environment:
+      POSTGRES_USER: pordee
+      POSTGRES_PASSWORD: pordee
+      POSTGRES_DB: pordee
+      TZ: Asia/Bangkok
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - pordee-pgdata:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U pordee -d pordee"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    networks: [pordee-net]
+volumes:
+  pordee-pgdata:
+    name: pordee-pgdata
+networks:
+  pordee-net:
+    external: true

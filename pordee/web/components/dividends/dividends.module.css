@@ -1,0 +1,73 @@
+/* F5 ปันผล · ขนาดตัวอักษรใช้ var(--fs-*) เท่านั้น · สีใช้ตัวแปรจาก globals.css */
+
+.head { display: flex; flex-direction: column; gap: 4px; }
+.head p { color: var(--muted); font-size: var(--fs-md); max-width: 62ch; margin: 0; }
+
+/* ผลตอบแทน 2 ค่า */
+.returns { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.retCard { display: flex; flex-direction: column; gap: 6px; }
+.retLabel { font-size: var(--fs-md); font-weight: 600; color: var(--ink); }
+.retValue { font-size: var(--fs-2xl); font-weight: 600; line-height: 1.15; overflow-wrap: anywhere; white-space: normal; }
+.retHelp { font-size: var(--fs-sm); color: var(--muted); margin: 0; }
+.formula { font-size: var(--fs-md); color: var(--ink); background: var(--gold-soft); border-radius: var(--radius-sm); padding: 10px 14px; overflow-wrap: anywhere; }
+
+/* ตัวเลื่อนเดือน */
+.monthNav { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+.monthLabel { text-align: center; font-size: var(--fs-xl); font-weight: 600; margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.navBtn { min-width: 44px; }
+.navText { display: inline; }
+@media (max-width: 480px) { .navText { display: none; } }
+
+/* ตารางเดือน */
+.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 12px; }
+.wd { text-align: center; font-size: var(--fs-sm); color: var(--muted); font-weight: 500; padding: 4px 0; }
+.day { min-height: 56px; border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--line); padding: 4px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.dayEmpty { background: transparent; border-color: transparent; }
+.dayNum { font-size: var(--fs-sm); font-family: var(--mono); line-height: 1.2; }
+.today { border: 2px solid var(--navy); }
+.today .dayNum { font-weight: 700; }
+.marks { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
+.mark { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.markXd { background: var(--gold); }
+.markPay { background: var(--mint); }
+.hasXd { background: var(--gold-soft); }
+.hasPay { background: var(--mint-soft); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: var(--fs-sm); color: var(--muted); margin-top: 10px; align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legendToday { width: 14px; height: 14px; border: 2px solid var(--navy); border-radius: 4px; display: inline-block; }
+
+/* รายการปันผล (ปฏิทินและที่ได้รับ) เป็นการ์ดเพื่ออ่านง่ายบนมือถือ */
+.items { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); margin-top: 16px; }
+.item { border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: var(--radius-sm); background: var(--surface); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.itemRcv { border-left-color: var(--mint); }
+.itemHead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.symbol { font-size: var(--fs-lg); font-weight: 700; color: var(--ink); }
+.facts { display: grid; grid-template-columns: minmax(45%, 1fr) minmax(0, auto); gap: 6px 12px; margin: 0; align-items: baseline; }
+.facts dt { color: var(--muted); font-size: var(--fs-sm); min-width: 0; }
+.facts dd { margin: 0; text-align: right; font-size: var(--fs-md); min-width: 0; overflow-wrap: anywhere; }
+.facts .strong { font-size: var(--fs-lg); font-weight: 600; white-space: nowrap; }
+.help { font-size: var(--fs-sm); color: var(--muted); margin: 0; }
+.big { font-size: var(--fs-xl); font-weight: 600; }
+
+/* สรุปรายเดือน */
+.monthBlock { display: flex; flex-direction: column; gap: 4px; }
+.monthSum { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; padding: 14px 16px;
+  border-radius: var(--radius-sm); background: var(--mint-soft); }
+.monthSumName { font-size: var(--fs-lg); font-weight: 600; }
+.monthSumVals { display: flex; flex-direction: column; align-items: flex-end; gap: 0; }
+.monthThb { font-size: var(--fs-xl); font-weight: 700; color: var(--ink); }
+.monthUsd { font-size: var(--fs-md); color: var(--muted); }
+
+.total { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; padding: 16px; border-radius: var(--radius-sm);
+  background: var(--navy); color: #fff; }
+.totalLabel { font-size: var(--fs-md); }
+.totalVal { font-size: var(--fs-2xl); font-weight: 700; }
+
+.empty { font-size: var(--fs-md); color: var(--muted); background: var(--surface-2); border: 1px dashed var(--line); border-radius: var(--radius-sm); padding: 16px; margin: 12px 0 0; }
+.loginBox { text-align: center; padding: 32px 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.loginBox p { font-size: var(--fs-lg); margin: 0; }
+
+@media (max-width: 480px) {
+  .day { min-height: 44px; padding: 3px 1px; }
+  .mark { width: 8px; height: 8px; }
+}

@@ -1,0 +1,25 @@
+name: pordee-web
+services:
+  web:
+    build: .
+    image: pordee-web:latest
+    container_name: pordee-web
+    ports:
+      - "3300:3300"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://pordee:pordee@pordee-db:5432/pordee}
+      PORT: "3300"
+      HOSTNAME: 0.0.0.0
+      TZ: Asia/Bangkok
+      ALLOW_TEST_API: ${ALLOW_TEST_API:-1}
+      BUG_MODE: ${BUG_MODE:-0}
+      SESSION_SECRET: ${SESSION_SECRET:-pordee-dev-secret}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3300/api/health').then(r=>r.json()).then(j=>process.exit(j.ok&&j.db?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    networks: [pordee-net]
+networks:
+  pordee-net:
+    external: true
