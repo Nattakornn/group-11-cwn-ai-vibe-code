@@ -1,0 +1,25 @@
+sequenceDiagram
+  autonumber
+  participant J as lib/jobs (tick)
+  participant DB as PostgreSQL
+  actor Beam as คุณบีม
+  participant BR as เบราว์เซอร์
+  participant API as pordee-web API
+  Note over J: หลังรอบตลาดวันที่ 25 พ.ย. 2569 ปิด (04:00 ไทยของ 26 พ.ย.)
+  J->>DB: SELECT ราคาปิด VOO 25 พ.ย. และอัตราของวันนั้น
+  DB-->>J: 500.00 · 35.0000
+  Note over J: 5000 ÷ 35 = 142.86 − 1.00 = 141.86 ÷ 500 = 0.2837 (BR-44)
+  J->>DB: INSERT dca_pending (plan, 2026-11-25) status pending
+  Beam->>BR: เปิดพอร์ต เห็นรายการรอยืนยัน
+  par กดครั้งที่ 1
+    BR->>API: POST /api/dca/pending/31/confirm
+    API->>DB: BEGIN · UPDATE dca_pending SET status = confirmed WHERE id = 31 AND status = pending
+    DB-->>API: 1 แถว
+    API->>DB: INSERT transactions (buy 0.2837 @ 500.00, fee 1.00, fx 35.0000) · UPSERT holdings · COMMIT
+    API-->>BR: 200
+  and กดครั้งที่ 2 (ห่าง 50 มิลลิวินาที)
+    BR->>API: POST /api/dca/pending/31/confirm
+    API->>DB: UPDATE … WHERE status = pending (รอ lock แล้วได้ 0 แถว)
+    API-->>BR: 409 รายการนี้ยืนยันแล้ว
+  end
+  BR-->>Beam: VOO เพิ่ม 0.2837 หุ้น (ครั้งเดียว)

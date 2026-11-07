@@ -1,0 +1,15 @@
+sequenceDiagram
+  autonumber
+  actor U as ผู้ใช้ (2 แท็บ)
+  participant A1 as API คำขอ A
+  participant A2 as API คำขอ B
+  participant DB as PostgreSQL
+  U->>A1: POST /api/transactions ขาย AAPL 20
+  U->>A2: POST /api/transactions ขาย AAPL 20
+  A1->>DB: BEGIN · INSERT transactions · UPDATE holdings SET shares = shares − 20
+  A2->>DB: BEGIN · INSERT transactions · UPDATE holdings … (รอ row lock ของ A)
+  A1->>DB: COMMIT (เหลือ 0.0000)
+  DB-->>A2: ERROR 23514 holdings_shares_nonneg (−20.0000)
+  A2->>DB: ROLLBACK (รายการขายของ B หายด้วย)
+  A1-->>U: 201 ขายแล้ว กำไรที่รับรู้ตาม BR-43
+  A2-->>U: 409 มีหุ้นไม่พอ

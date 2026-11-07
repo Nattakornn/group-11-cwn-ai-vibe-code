@@ -1,0 +1,28 @@
+sequenceDiagram
+  autonumber
+  participant J as lib/jobs (tick)
+  participant R as lib/rules
+  participant F as lib/feed
+  participant DB as PostgreSQL
+  actor Ploy as คุณพลอย
+  Note over J: ทุก 60 วินาที หรือ POST /api/test/tick เมื่อนาฬิกาถูกล็อก
+  J->>R: marketStatus(02:30 ไทย)
+  R-->>J: เปิด · session_date = วันที่นิวยอร์ก
+  J->>DB: SELECT alerts ที่ active
+  loop ทุกแจ้งเตือน
+    J->>F: ราคา AAPL (ใช้ที่พักก่อน ตาม flow-quote)
+    F-->>J: 252.00
+    J->>R: ถึงเป้า $250.00 ทิศขึ้น?
+    R-->>J: ใช่ (BR-36)
+    J->>DB: INSERT alert_events ON CONFLICT DO NOTHING
+    alt แถวใหม่
+      J->>DB: UPDATE alerts SET active = false
+      J->>R: 02:30 อยู่ใน [02:00, 07:00)?
+      R-->>J: ใช่ (BR-37)
+      Note over J,DB: ไม่ INSERT email_outbox · in_quiet_hours = true
+    else ซ้ำในรอบนี้
+      Note over J: ข้าม (BR-35)
+    end
+  end
+  Ploy->>DB: 07:30 เปิดกล่องแจ้งเตือน (ผ่าน API)
+  DB-->>Ploy: AAPL แตะ $250.00 เมื่อ 02:30 · ไม่มีอีเมล

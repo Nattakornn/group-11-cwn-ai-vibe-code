@@ -1,0 +1,3 @@
+. /Users/natthakorn/my_work_self/teaching_code/us-stock-analysis/pordee/exploration/C7/h.sh
+FX(){ curl -s -XPOST $B/api/test/reset -H 'content-type: application/json' -d "{\"now\":\"$1+07:00\"}" >/dev/null; login beam; as beam $B/api/portfolio | python3 -c 'import json,sys;d=json.load(sys.stdin);print("'$1'",{k:v for k,v in d.items() if k not in("holdings","positions","items")} ); h=d.get("holdings") or d.get("positions") or d.get("items") or []; [print("  ",{k:x[k] for k in x if k in("symbol","shares","avgCostUsd","valueThb","gainThb","gainUsd","costThb","valueUsd","stale","price")}) for x in h]' | cut -c1-700; }
+FX 2026-11-06T17:59:59; FX 2026-11-06T18:00:00; FX 2026-11-07T12:00:00; FX 2026-11-09T17:59:59; FX 2026-11-09T18:00:00

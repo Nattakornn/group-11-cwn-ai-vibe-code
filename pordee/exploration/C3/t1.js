@@ -1,0 +1,21 @@
+async()=>{const post=async b=>{const r=await fetch('/api/transactions',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});const j=await r.json().catch(()=>null);return [JSON.stringify(b),r.status,JSON.stringify(j?.transaction?{id:j.transaction.id,fee:j.transaction.feeUsd,fx:j.transaction.fxRate,shares:j.transaction.shares,price:j.transaction.price}:j)]};
+const d='2026-11-05';const C=[
+{symbol:'ZA06',side:'buy',tradeDate:d,shares:'1',price:'666.00'},
+{symbol:'ZA06',side:'buy',tradeDate:d,shares:'1',price:'666.67'},
+{symbol:'ZA06',side:'buy',tradeDate:d,shares:'1',price:'700.00'},
+{symbol:'ZA08',side:'buy',tradeDate:d,shares:'1',price:'669.00'},
+{symbol:'ZA08',side:'buy',tradeDate:d,shares:'1',price:'670.00'},
+{symbol:'ZA08',side:'buy',tradeDate:d,shares:'1',price:'671.00'},
+{symbol:'ZA09',side:'buy',tradeDate:d,shares:'10',price:'100.00'},
+{symbol:'ZA10',side:'buy',tradeDate:d,shares:'0.123',price:'10'},
+{symbol:'ZA10',side:'buy',tradeDate:d,shares:'0.1234',price:'10'},
+{symbol:'ZA10',side:'buy',tradeDate:d,shares:'0.12345',price:'10'},
+{symbol:'ZA10',side:'buy',tradeDate:d,shares:'0',price:'10'},
+{symbol:'ZA10',side:'buy',tradeDate:d,shares:'-1',price:'10'},
+{symbol:'ZA10',side:'buy',tradeDate:d,shares:'1',price:'10.12345'},
+{symbol:'ZA10',side:'buy',tradeDate:d,shares:'1',price:'0'},
+{symbol:'ZA10',side:'buy',tradeDate:'2026-12-31',shares:'1',price:'10'},
+{symbol:'ZA10',side:'buy',tradeDate:'2026-10-31',shares:'1',price:'10'},
+{symbol:'OLDC',side:'buy',tradeDate:'2026-09-01',shares:'1',price:'3.20'},
+{symbol:'NSRGY',side:'buy',tradeDate:d,shares:'1',price:'10'},
+];const out=[];for(const c of C)out.push(await post(c));return out.map(x=>x.join(' => ')).join('\n')}

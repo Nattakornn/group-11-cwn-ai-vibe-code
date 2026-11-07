@@ -1,0 +1,215 @@
+erDiagram
+  users ||--o{ sessions : "เข้าสู่ระบบ"
+  users ||--o{ subscriptions : "สมัคร Pro"
+  users ||--o{ watchlist_items : "เฝ้าดู"
+  users ||--o{ alerts : "ตั้ง"
+  users ||--o{ transactions : "จด"
+  users ||--o{ holdings : "ถือ"
+  users ||--o{ dca_plans : "ตั้งแผน"
+  users ||--o{ dividend_receipts : "ได้รับ"
+  users ||--o{ study_history : "ลอง"
+  users ||--o{ email_outbox : "ได้อีเมล"
+  stocks ||--o{ daily_prices : "ราคารายวัน"
+  stocks ||--o{ intraday_quotes : "ราคาจำลองระหว่างวัน"
+  stocks ||--o{ splits : "แตกพาร์"
+  stocks ||--o{ dividends : "ประกาศปันผล"
+  stocks ||--o| quote_cache : "ราคาที่พัก"
+  stocks ||--o| feed_overrides : "สั่งทดสอบ"
+  stocks ||--o{ watchlist_items : ""
+  stocks ||--o{ alerts : ""
+  stocks ||--o{ transactions : ""
+  stocks ||--o{ holdings : ""
+  alerts ||--o{ alert_events : "เกิด"
+  alert_events ||--o| email_outbox : "ส่ง"
+  dca_plans ||--o{ dca_pending : "สร้าง"
+  dca_pending |o--o| transactions : "ยืนยันเป็น"
+  dividends ||--o{ dividend_receipts : "จ่ายให้"
+
+  users {
+    int id PK
+    text email UK
+    text password_hash
+    text tier "free / pro"
+    bool is_staff
+    date pro_period_end "null = ไม่เคย Pro"
+    bool pro_auto_renew
+    bool big_font
+    text lang "th / en"
+    time quiet_start
+    time quiet_end
+    timestamptz delete_requested_at
+  }
+  sessions {
+    text token PK
+    int user_id FK
+    timestamptz expires_at
+  }
+  subscriptions {
+    int id PK
+    int user_id FK
+    date period_start
+    date period_end
+    numeric amount_thb "10,2 = 199.00"
+    timestamptz cancelled_at
+  }
+  stocks {
+    text symbol PK "BRK.B"
+    text name
+    text exchange "NYSE / NASDAQ / OTC"
+    text kind "stock / etf / reit"
+    text status "listed / delisted"
+    numeric pe "10,2 null = ไม่มี"
+    numeric div_yield_pct "6,2"
+    numeric market_cap_usd "20,0"
+    text div_frequency
+    date fundamentals_date
+  }
+  daily_prices {
+    text symbol PK, FK
+    date trade_date PK "วันที่นิวยอร์ก"
+    numeric open "14,4"
+    numeric high "14,4"
+    numeric low "14,4"
+    numeric close "14,4 ราคาจริงไม่ปรับ"
+    bigint volume
+  }
+  splits {
+    text symbol PK, FK
+    date effective_date PK
+    int ratio_to "10"
+    int ratio_from "1"
+  }
+  dividends {
+    int id PK
+    text symbol FK
+    date xd_date
+    date pay_date
+    numeric amount_per_share "10,4"
+  }
+  market_calendar {
+    date ny_date PK
+    text status "closed / early"
+    time close_time_ny "13:00 เมื่อ early"
+  }
+  intraday_quotes {
+    text symbol PK, FK
+    timestamptz quote_time PK
+    numeric price "14,4"
+  }
+  feed_overrides {
+    text symbol PK, FK
+    text mode "price / zero / timeout"
+    numeric price "14,4"
+  }
+  quote_cache {
+    text symbol PK, FK
+    numeric price "14,4"
+    timestamptz quote_time "เวลาของราคา"
+    timestamptz fetched_at "เวลาที่ดึง"
+  }
+  feed_requests {
+    bigint id PK
+    timestamptz requested_at "นับโควตา"
+    text symbol
+    bool ok
+  }
+  fx_rates {
+    date rate_date PK "วันทำการไทย"
+    numeric mid_rate "10,4"
+    timestamptz published_at "18:00"
+  }
+  watchlist_items {
+    int user_id PK, FK
+    text symbol PK, FK
+    int position "ลำดับที่เพิ่ม"
+    timestamptz added_at
+  }
+  alerts {
+    int id PK
+    int user_id FK
+    text symbol FK
+    text kind "pct / target"
+    numeric target_price "14,4"
+    text direction "up / down"
+    bool active
+  }
+  alert_events {
+    bigint id PK
+    int alert_id FK "UNIQUE กับ session_date"
+    date session_date "วันที่นิวยอร์กของรอบ"
+    numeric price "14,4"
+    numeric change_pct "9,4"
+    timestamptz triggered_at
+    bool in_quiet_hours
+    timestamptz read_at
+  }
+  email_outbox {
+    bigint id PK
+    int user_id FK
+    bigint alert_event_id FK
+    text to_email
+    text subject
+    text body
+    timestamptz sent_at
+  }
+  transactions {
+    bigint id PK
+    int user_id FK
+    text symbol FK
+    text side "buy / sell"
+    date trade_date
+    numeric shares "18,4"
+    numeric price "14,4"
+    numeric fee_usd "12,2"
+    numeric fx_rate "10,4 วันซื้อ"
+    text source "manual / dca"
+  }
+  holdings {
+    int user_id PK, FK
+    text symbol PK, FK
+    numeric shares "18,4 CHECK >= 0"
+    numeric cost_usd "14,2"
+    numeric cost_thb "16,2"
+    numeric realized_usd "14,2"
+  }
+  dca_plans {
+    int id PK
+    int user_id FK
+    text symbol FK
+    numeric amount_thb "12,2"
+    smallint day_of_month
+    bool active
+  }
+  dca_pending {
+    bigint id PK
+    int plan_id FK "UNIQUE กับ trade_date"
+    date trade_date
+    numeric close_price "14,4"
+    numeric fx_rate "10,4"
+    numeric usd_amount "12,2"
+    numeric fee_usd "12,2"
+    numeric shares "18,4"
+    text status "pending / confirmed / skipped"
+  }
+  dividend_receipts {
+    bigint id PK
+    int user_id FK "UNIQUE กับ dividend_id"
+    int dividend_id FK
+    numeric shares "18,4"
+    numeric gross_usd "12,2"
+    numeric tax_usd "12,2"
+    numeric net_usd "12,2"
+    numeric fx_rate "10,4 วันจ่าย"
+    numeric net_thb "14,2"
+  }
+  study_history {
+    bigint id PK
+    int user_id FK
+    text kind "compare / backtest"
+    jsonb params
+    timestamptz created_at
+  }
+  app_clock {
+    int id PK "แถวเดียว"
+    timestamptz frozen_now "null = นาฬิกาจริง"
+  }

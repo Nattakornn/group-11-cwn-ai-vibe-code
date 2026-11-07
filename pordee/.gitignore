@@ -1,0 +1,14 @@
+# dependencies / build
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.env*.local
+
+# เครื่องมือ
+.playwright-cli/
+.DS_Store
+
+# ผลรันดิบของ Playwright (วิดีโอ · สร้างใหม่ได้ด้วย scripts/run-shards.mjs)
+e2e/test-report/
+e2e/report-*/raw/

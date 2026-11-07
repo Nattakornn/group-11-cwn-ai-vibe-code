@@ -1,0 +1,37 @@
+flowchart LR
+  subgraph PC["① เครื่องของเรา"]
+    U(["ผู้ใช้"])
+    BR["เบราว์เซอร์<br/>หน้าเว็บ + วาดกราฟ"]
+    PW["Playwright<br/>ทดสอบอัตโนมัติ"]
+  end
+  subgraph NET["Docker network: pordee-net"]
+    subgraph WEB["② pordee-web · Next.js App Router + TypeScript · พอร์ต 3300"]
+      PAGES["หน้าเว็บ /th /en"]
+      API["API /api/*"]
+      RULES["lib/rules<br/>ตลาด · เงิน · ตัวชี้วัด<br/>แจ้งเตือน · คัดกรอง · สรุป AI"]
+      FEED["lib/feed<br/>Pordee Mock Feed<br/>+ โควตา + ใช้ซ้ำ 15 นาที"]
+      JOBS["lib/jobs ทุก 60 วินาที<br/>แจ้งเตือน · DCA · ปันผล<br/>ต่ออายุ Pro · ลบบัญชี"]
+      CLOCK["lib/clock<br/>นาฬิกาที่ล็อกได้"]
+      DBL["lib/db · ไลบรารี pg"]
+    end
+    subgraph DBP["③ pordee-db · Docker แยกอีกโปรเจกต์"]
+      PG[("PostgreSQL 16<br/>volume pordee-pgdata")]
+    end
+  end
+  U --> BR
+  PW --> BR
+  BR -->|"http://localhost:3300"| PAGES
+  BR -->|"fetch JSON"| API
+  PW -->|"POST /api/test/*"| API
+  PAGES --> API
+  API --> RULES
+  API --> FEED
+  API --> CLOCK
+  JOBS --> RULES
+  JOBS --> FEED
+  JOBS --> CLOCK
+  RULES --> DBL
+  FEED --> DBL
+  API --> DBL
+  DBL -->|"pordee-db:5432 ใน network"| PG
+  PC -.->|"localhost:5434 ใช้จากเครื่องเราเท่านั้น"| PG

@@ -1,0 +1,27 @@
+sequenceDiagram
+  autonumber
+  actor Beam as คุณบีม
+  participant BR as เบราว์เซอร์
+  participant API as pordee-web API
+  participant R as lib/rules + clock
+  participant F as lib/feed (Mock Feed)
+  participant DB as PostgreSQL
+  Beam->>BR: เปิด /th/stocks/VOO
+  BR->>API: GET /api/stocks/VOO
+  API->>R: now() และ marketStatus(now)
+  R-->>API: 22:00:00 ไทย · ตลาดเปิด
+  API->>DB: SELECT quote_cache WHERE symbol = VOO
+  DB-->>API: fetched_at 21:44:59 (อายุ 15:01)
+  Note over API: เกิน 15:00 ต้องขอใหม่ (BR-10)
+  API->>DB: BEGIN · advisory lock 4242 · นับโควตา · INSERT feed_requests
+  alt โควตาว่าง
+    DB-->>API: RETURNING id แล้ว COMMIT
+    API->>F: quote(VOO, asOf = 21:45:00)
+    F-->>API: 500.00 @ 21:45
+    API->>DB: UPSERT quote_cache
+    API-->>BR: 200 price 500.00 · asOf 21:45 · stale false · source Pordee Mock Feed
+  else โควตาเต็ม
+    DB-->>API: ไม่มีแถว แล้ว COMMIT
+    API-->>BR: 200 ราคาเดิม · stale true
+  end
+  BR-->>Beam: ราคา ณ 21:45 น. (ล่าช้า 15 นาที) · Pordee Mock Feed
