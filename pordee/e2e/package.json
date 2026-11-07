@@ -1,0 +1,16 @@
+{
+  "name": "pordee-e2e",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "playwright test",
+    "shard": "node scripts/run-shards.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@types/node": "22.10.2",
+    "@types/pg": "8.11.10",
+    "pg": "8.13.1",
+    "typescript": "5.7.2"
+  }
+}

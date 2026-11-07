@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ผลทดสอบพอดีพอร์ต</title>
+<style>
+:root{--bg:#f6f4ee;--card:#fff;--ink:#14213d;--muted:#5b6577;--line:#e2e5ec;--ok:#0f8a66;--ok-s:#e2f4ec;--bad:#c2452d;--bad-s:#fbe9e4;--warn:#a7781c;--warn-s:#f8eed8;--info:#2f5ea8;--info-s:#e7eef9;--mono:ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1426;--card:#111d33;--ink:#e8ecf3;--muted:#9aa6b8;--line:#26324a;--ok:#34c79d;--ok-s:#12352e;--bad:#ef7a62;--bad-s:#3a1f1a;--warn:#e0b45a;--warn-s:#35301f;--info:#7aa7ee;--info-s:#17284a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'IBM Plex Sans Thai',system-ui,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 80px}
+h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.1rem;margin:28px 0 10px}.muted{color:var(--muted);font-size:.9rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.verdict.ok{border-top:4px solid var(--ok)}.verdict.bad{border-top:4px solid var(--bad)}
+.big{font-size:1.35rem;font-weight:700}.ok-t{color:var(--ok)}.bad-t{color:var(--bad)}
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:.78rem;font-weight:600;white-space:nowrap}
+.passed,.flaky-ok{background:var(--ok-s);color:var(--ok)}.failed,.timedOut{background:var(--bad-s);color:var(--bad)}.flaky{background:var(--warn-s);color:var(--warn)}.none{background:var(--line);color:var(--muted)}
+.mode{background:var(--info-s);color:var(--info)}.mode.b1{background:var(--bad-s);color:var(--bad)}
+table{width:100%;border-collapse:collapse}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-size:.82rem;color:var(--muted);font-weight:500}
+.tbl{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:auto}
+tr.row{cursor:pointer}tr.row:hover{background:color-mix(in srgb,var(--info-s) 50%,transparent)}
+td.id{font-family:var(--mono);white-space:nowrap}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;min-width:80px}.bar>i{display:block;height:100%;background:var(--ok)}
+.detail td{background:var(--bg)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+pre{white-space:pre-wrap;word-break:break-word;font:12.5px/1.5 var(--mono);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0;max-height:340px;overflow:auto}
+.shots{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}.shots figure{margin:0;flex:none;width:300px}.shots img{width:100%;border-radius:8px;border:1px solid var(--line)}
+figcaption{font-size:.8rem;color:var(--muted)}img.gif{max-width:100%;border-radius:10px;border:1px solid var(--line)}
+.steps li.err{color:var(--bad)}.steps{margin:4px 0;padding-left:20px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.filters select,.filters input{font:inherit;padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.k{font-size:.8rem;color:var(--muted);margin-top:10px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const D = /*__DATA__*/null;
+const $ = (h) => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild; };
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ST = { passed: 'ผ่าน', failed: 'ล้ม', timedOut: 'หมดเวลา', flaky: 'ผ่านรอบ 2 (flaky)' };
+const TRI = { web: 'เว็บผิด', plan: 'แผนผิด', test: 'test เขียนผิด', unclear: 'ยังไม่ชัด' };
+const PN = { chromium: 'Chromium (Desktop 1280×720)', 'mobile-chrome': 'Chrome มือถือ (Pixel 7 · 375×812)' };
+const app = document.getElementById('app');
+const modeLabel = D.bugMode === '1' ? 'โหมดฝังบั๊ก (data-bug-mode=1)' : D.bugMode === '0' ? 'โหมดปกติ (data-bug-mode=0)' : 'โหมดไม่ทราบ';
+app.append($(`<header><h1>ผลทดสอบ e2e · พอดีพอร์ต</h1>
+<div class="muted">ตัดสินตาม TEST-PLAN.md หัวข้อ 6.2 แยกทีละเบราว์เซอร์ · <span class="pill mode ${D.bugMode === '1' ? 'b1' : ''}">${modeLabel}</span> · สร้างเมื่อ ${new Date(D.generatedAt).toLocaleString('th-TH')}</div></header>`));
+const cards = $(`<div class="cards"></div>`);
+for (const v of D.verdicts) {
+  cards.append($(`<div class="card verdict ${v.ok ? 'ok' : 'bad'}"><div class="muted">${PN[v.project] ?? v.project}</div>
+  <div class="big ${v.ok ? 'ok-t' : 'bad-t'}">${v.ok ? '✅ ผ่านเกณฑ์' : '❌ ไม่ผ่านเกณฑ์'}</div>
+  <table><tr><td>P1 ผ่านทั้งหมด</td><td><b>${v.p1pass}/${v.p1}</b> ${v.p1pass === v.p1 ? '✅' : '❌'}</td></tr>
+  <tr><td>ผ่านรวม ≥ 90%</td><td><b>${v.pass}/${v.total}</b> (ต้อง ≥ ${v.need}) ${v.pass >= v.need ? '✅' : '❌'}</td></tr>
+  <tr><td>flaky (ผ่านรอบ 2)</td><td>${v.flaky}</td></tr></table></div>`));
+}
+app.append(cards);
+if (D.planP1Note) app.append($(`<p class="muted">หมายเหตุ: ${esc(D.planP1Note)}</p>`));
+if (D.verdicts.some(v => v.total) && D.verdicts.length) {
+  const secs = [...new Set(D.tests.map(t => t.section))].sort();
+  const t = $(`<div class="tbl"><table><thead><tr><th>หัวข้อย่อย</th>${D.verdicts.map(v => `<th>${v.project}</th>`).join('')}</tr></thead><tbody></tbody></table></div>`);
+  for (const s of secs) t.querySelector('tbody').append($(`<tr><td>${s}</td>${D.verdicts.map(v => { const x = v.sections[s]; if (!x) return '<td class="muted">–</td>'; const p = Math.round(100 * x.pass / x.n); return `<td><div style="display:flex;gap:8px;align-items:center"><div class="bar"><i style="width:${p}%"></i></div><span>${p}% (${x.pass}/${x.n})</span></div></td>`; }).join('')}</tr>`));
+  app.append($(`<h2>% ผ่านของแต่ละหัวข้อย่อย</h2>`)); app.append(t);
+}
+const tri = D.tests.filter(t => t.status !== 'passed' && t.status !== 'flaky');
+const triCount = {}; for (const t of tri) { const k = t.triage?.class ?? 'none'; triCount[k] = (triCount[k] ?? 0) + 1; }
+app.append($(`<h2>ข้อที่ล้ม ${tri.length} แถว · การจำแนก</h2>`));
+app.append($(`<div class="filters">${Object.entries(triCount).map(([k, n]) => `<span class="pill ${k === 'none' ? 'none' : 'failed'}">${TRI[k] ?? 'ยังไม่จำแนก'} ${n}</span>`).join('')}</div>`));
+const hasNormal = D.tests.some(t => t.normal);
+const f = $(`<div class="filters"><select id="fp"><option value="">ทุกเบราว์เซอร์</option>${D.verdicts.map(v => `<option>${v.project}</option>`).join('')}</select>
+<select id="fs"><option value="">ทุกผล</option><option value="ok">ผ่าน</option><option value="bad">ล้ม</option>${hasNormal ? '<option value="new">ผ่านรอบปกติ แต่ล้มรอบนี้</option>' : ''}</select>
+<select id="fl"><option value="">ทุกระดับ</option><option>P1</option><option>P2</option><option>P3</option></select><input id="fq" placeholder="ค้น ID / ชื่อ"></div>`);
+app.append($(`<h2>ทุก test (กดที่แถวเพื่อดูรายละเอียด)</h2>`)); app.append(f);
+const tbl = $(`<div class="tbl"><table><thead><tr><th>ID</th><th>ชื่อ</th><th>ระดับ</th><th>หัวข้อ</th><th>เบราว์เซอร์</th>${hasNormal ? '<th>ปกติ</th><th>ฝังบั๊ก</th>' : '<th>ผล</th>'}<th>จำแนก</th></tr></thead><tbody></tbody></table></div>`);
+app.append(tbl);
+const body = tbl.querySelector('tbody');
+const pill = (s) => `<span class="pill ${s}">${ST[s] ?? s}</span>`;
+function detail(t) {
+  return `<tr class="detail"><td colspan="9"><div class="grid2"><div>
+  <div class="k">ผลที่คาดหวังจากแผน</div><pre>${esc(t.expected)}</pre>
+  <div class="k">ที่มา</div><div>${esc(t.source)}</div><div class="k">FR/BR · กฎ</div><div>${esc(t.frbr)} ${esc(t.rules)}</div>
+  ${t.triage ? `<div class="k">การจำแนก: ${TRI[t.triage.class] ?? t.triage.class}</div><div>${esc(t.triage.note)}</div>` : ''}
+  ${t.pending.length ? `<div class="k">ค่าที่บันทึกไว้ รอคำตอบ (ไม่นับผ่าน/ล้ม)</div><pre>${esc(t.pending.join('\n'))}</pre>` : ''}
+  ${t.notAutomated.length ? `<div class="k">ส่วนที่ทำอัตโนมัติไม่ได้</div><pre>${esc(t.notAutomated.join('\n'))}</pre>` : ''}
+  <div class="k">ขั้นตอน</div><ul class="steps">${t.steps.map(s => `<li class="${s.error ? 'err' : ''}" style="margin-left:${s.depth * 14}px">${s.error ? '✗' : '✓'} ${esc(s.title)}</li>`).join('')}</ul>
+  </div><div>
+  <div class="k">ผลจริง / ข้อความ error</div>${t.errors.length ? t.errors.map(e => `<pre>${esc(e)}</pre>`).join('') : '<div class="ok-t">ไม่มี error</div>'}
+  ${t.normal ? `<div class="k">รอบปกติ: ${ST[t.normal.status] ?? t.normal.status}</div>${(t.normal.errors || []).slice(0, 2).map(e => `<pre>${esc(e)}</pre>`).join('')}` : ''}
+  ${t.gif ? `<div class="k">GIF</div><img class="gif" loading="lazy" src="${t.gif}" alt="GIF ${t.id}">` : ''}
+  </div></div>
+  ${t.shots.length ? `<div class="k">ภาพตอนตรวจ (กรอบแดง = จุดที่ตรวจ)</div><div class="shots">${t.shots.map(s => `<figure><a href="${s.src}" target="_blank"><img loading="lazy" src="${s.src}" alt=""></a><figcaption>${esc(s.name)}</figcaption></figure>`).join('')}</div>` : ''}
+  </td></tr>`;
+}
+function render() {
+  const p = fp.value, s = fs.value, l = fl.value, q = fq.value.toLowerCase();
+  body.innerHTML = '';
+  for (const t of D.tests) {
+    const ok = t.status === 'passed' || t.status === 'flaky';
+    if (p && t.project !== p) continue; if (l && t.level !== l) continue;
+    if (s === 'ok' && !ok) continue; if (s === 'bad' && ok) continue;
+    if (s === 'new' && !(t.normal && (t.normal.status === 'passed' || t.normal.status === 'flaky') && !ok)) continue;
+    if (q && !(t.id + ' ' + t.title).toLowerCase().includes(q)) continue;
+    const r = $(`<tr class="row"><td class="id">${t.id}</td><td>${esc(t.title)}</td><td>${t.level}</td><td>${t.section}</td><td>${t.project}</td>${hasNormal ? `<td>${t.normal ? pill(t.normal.status) : '–'}</td>` : ''}<td>${pill(t.status)}</td><td>${t.triage ? `<span class="pill failed">${TRI[t.triage.class] ?? t.triage.class}</span>` : ''}</td></tr>`);
+    r.onclick = () => { const n = r.nextElementSibling; if (n && n.classList.contains('detail')) n.remove(); else r.after($(`<table><tbody>${detail(t)}</tbody></table>`).querySelector('tr')); };
+    body.append(r);
+  }
+}
+for (const id of ['fp', 'fs', 'fl', 'fq']) document.getElementById(id).addEventListener('input', render);
+render();
+if (D.stats.length) {
+  app.append($(`<h2>เครื่องไหวไหมตอนรันขนาน (docker stats)</h2>`));
+  app.append($(`<div class="tbl"><table><thead><tr><th>ระดับ</th><th>container</th><th>CPU รวม</th><th>RAM รวม</th></tr></thead><tbody>${D.stats.map(s => `<tr><td>${esc(s.label)}</td><td>${s.containers}</td><td>${s.cpuPct}%</td><td>${s.memMiB} MiB</td></tr>`).join('')}</tbody></table></div>`));
+}
+</script>
+</body>
+</html>
