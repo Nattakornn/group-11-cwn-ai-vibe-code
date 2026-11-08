@@ -1,0 +1,104 @@
+<!doctype html>
+<!--
+  แม่แบบภาพสรุปผู้บริหาร (concept-one-pager · ขั้นที่ 8) · ตัวอย่างจริง: กรมการเงิน กองทัพเรือ 30 ต.ค. 2569
+  ขนาดภาพ 1600×900 (16:9) · เรนเดอร์ที่ scale 2 ได้ PNG 3200×1800
+  สไตล์: คลีน เว้นที่ว่างเยอะ ไม่มีกรอบ/กล่องสี · ทั้งภาพโทนน้ำเงินชุดเดียว (ห้ามเปลี่ยนเป็นขาว-ดำ หรือเพิ่มสีอื่น)
+
+  สิ่งที่ต้องแทนต่อเคส (โครงและ CSS ห้ามแก้ นอกจากจำนวนคอลัมน์):
+  - .eyebrow    ชื่อองค์กรลูกค้า · ชื่อโครงการ
+  - h1          เป้าหมายหลักของลูกค้า 1–2 บรรทัด สั้นที่สุด (ใช้ <br> แบ่งบรรทัด)
+  - .meta       3 จุด: ขอบเขต · ข้อจำกัดสำคัญ · "ร่างเพื่อยืนยัน · <วันที่ประชุม>"
+  - .stat × 4   ตัวเลขที่ทำให้ผู้บริหารเห็นขนาดปัญหา ถ้าเป็นสมมติฐานใส่ * ต่อท้าย · ห้ามเป็นราคา/งบ/MA
+  - .col × N    1 คอลัมน์ = 1 ระบบ/งาน (3–5 คอลัมน์ · แก้ repeat(5,1fr) ให้ตรงจำนวน)
+                "วันนี้" ≤ 2 บรรทัด · "หลังมีระบบ" ≤ 3 บรรทัด
+  - footer      สมมติฐานที่มี * ทั้งหมด · สิ่งที่อยู่นอกขอบเขต
+  คำที่ห้ามตัดกลาง (ชื่อเฉพาะภาษาอังกฤษ 2 คำ) ให้ใช้ &nbsp; เช่น TTB&nbsp;Touch
+-->
+<html lang="th"><head><meta charset="utf-8">
+<style>
+  :root{--ink:#0f2347;--mute:#5d6f92;--hair:#d6e0f0;--acc:#2a64d8;--dark:#0a1a3a;--paper:#f2f6fc;--onDark:#a9bde0;--accLt:#6fa3ff;--darkLine:#26406e}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1600px;height:900px;background:var(--paper);font-family:"Leelawadee UI","Segoe UI",sans-serif;color:var(--ink);word-break:keep-all;line-break:strict;-webkit-font-smoothing:antialiased}
+  .light{font-family:"Leelawadee UI Semilight","Leelawadee UI",sans-serif;font-weight:300}
+
+  .hero{height:390px;background:radial-gradient(1100px 520px at 88% 0%,#1d3f80 0%,#122a59 40%,var(--dark) 75%);color:#fff;padding:56px 64px;display:grid;grid-template-columns:1.15fr 1fr;gap:56px;align-items:center}
+  .eyebrow{font-size:15px;color:var(--onDark);letter-spacing:.2px;margin-bottom:18px}
+  h1{font-size:62px;line-height:1.18;font-weight:700;letter-spacing:-.5px}
+  .meta{margin-top:22px;font-size:16px;color:var(--onDark)}
+  .meta span{display:inline-block;margin-right:18px}
+  .meta span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accLt);margin-right:8px;vertical-align:middle}
+
+  .stats{display:grid;grid-template-columns:1fr 1fr;row-gap:30px;column-gap:40px}
+  .stat{border-top:1px solid var(--darkLine);padding-top:16px}
+  .stat b{display:block;font-size:46px;line-height:1.1;color:#fff}
+  .stat small{display:block;font-size:14px;color:var(--onDark);margin-top:6px;line-height:1.45}
+
+  .body{padding:44px 64px 0}
+  .section{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:26px}
+  .section h2{font-size:26px;font-weight:700;letter-spacing:-.2px}
+  .section p{font-size:14px;color:var(--mute)}
+  .cols{display:grid;grid-template-columns:repeat(5,1fr)}
+  .col{padding:0 26px;border-left:1px solid var(--hair)}
+  .col:first-child{padding-left:0;border-left:0}
+  .col:last-child{padding-right:0}
+  .no{font-size:13px;color:var(--mute);letter-spacing:1px}
+  .col h3{font-size:21px;font-weight:700;line-height:1.3;margin:6px 0 16px}
+  .lbl{font-size:12px;letter-spacing:.8px;color:var(--mute);margin-bottom:6px}
+  .now{font-size:15px;line-height:1.6;color:var(--mute);min-height:72px}
+  .line{height:1px;background:linear-gradient(90deg,var(--acc),transparent);margin:16px 0}
+  .lbl.acc{color:var(--acc)}
+  .next{font-size:17px;line-height:1.55;color:var(--ink)}
+
+  footer{margin:40px 64px 0;display:flex;justify-content:space-between;gap:40px;font-size:12.5px;color:var(--mute);border-top:1px solid var(--hair);padding-top:14px;line-height:1.5}
+  footer b{color:var(--ink);font-weight:700}
+</style></head>
+<body>
+<section class="hero">
+  <div>
+    <div class="eyebrow">กรมการเงิน กองทัพเรือ · ระบบบริหารจัดการการเงินและกำลังพล</div>
+    <h1>ไม่เบิกจ่ายซ้ำซ้อน<br>ไม่จ่ายเกินสิทธิ์</h1>
+    <div class="meta"><span>4 ระบบ + 1 Plus</span><span>ยังคงอนุมัติด้วยการเซ็นตามระเบียบ</span><span>ร่างเพื่อยืนยัน · 30 ต.ค. 2569</span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b class="light">15 ปี</b><small>อายุระบบเงินเดือนเดิมที่พัฒนาเอง</small></div>
+    <div class="stat"><b class="light">139</b><small>หน่วยเจ้าหนี้ที่ต้องรับยอดรายบุคคล<br>(กรมบัญชีกลางมีเพียง 60)</small></div>
+    <div class="stat"><b class="light">50,000*</b><small>กำลังพล ทร. · ผู้รับบำนาญราว 24,000 ราย</small></div>
+    <div class="stat"><b class="light">800,000*</b><small>รายการต่อเดือนที่ส่งข้อมูลให้ธนาคาร</small></div>
+  </div>
+</section>
+
+<section class="body">
+  <div class="section"><h2>จากวันนี้ สู่ระบบใหม่</h2><p>5 งานที่เปลี่ยน</p></div>
+  <div class="cols">
+    <div class="col"><div class="no">01</div><h3>เงินเดือนและหนี้สิน</h3>
+      <div class="lbl">วันนี้</div><div class="now">ระบบเก่าเชื่อมหน่วยงานอื่นยาก หน่วยเจ้าหนี้ส่งไฟล์ Excel ไม่มีการเตือนหนี้เกิน</div>
+      <div class="line"></div>
+      <div class="lbl acc">หลังมีระบบ</div><div class="next">e-Payroll ใหม่ เตือนก่อนหักเกิน 30% ของเงินเดือน สลิปและ 50 ทวิ อยู่บน TTB&nbsp;Touch</div></div>
+
+    <div class="col"><div class="no">01 PLUS</div><h3>พนักงานประจำ</h3>
+      <div class="lbl">วันนี้</div><div class="now">หน่วยที่จ้างทำเบิกเอง ส่วนกลางไม่รู้ว่าสัญญาจ้างหมดหรือยัง</div>
+      <div class="line"></div>
+      <div class="lbl acc">หลังมีระบบ</div><div class="next">ฐานข้อมูลพนักงานกลาง ตรวจสัญญาก่อนเบิกทุกครั้ง</div></div>
+
+    <div class="col"><div class="no">02</div><h3>สวัสดิการบำนาญ</h3>
+      <div class="lbl">วันนี้</div><div class="now">เบิกได้รอบละ 16 ราย พิมพ์รายงาน เซ็นกระดาษ แล้วส่งกรมบัญชีกลาง</div>
+      <div class="line"></div>
+      <div class="lbl acc">หลังมีระบบ</div><div class="next">ยื่นและตรวจสิทธิ์ค่าเรียน ค่ารักษาในระบบ สรุปรายงานให้อัตโนมัติ</div></div>
+
+    <div class="col"><div class="no">03</div><h3>ค่าเช่าบ้าน / เช่าซื้อ</h3>
+      <div class="lbl">วันนี้</div><div class="now">ตรวจสัญญาแค่รอบแรก บางรายสัญญาหมดแล้ว ยังเบิกต่อ</div>
+      <div class="line"></div>
+      <div class="lbl acc">หลังมีระบบ</div><div class="next">เตือนทุกรอบเมื่อสัญญาหมดหรือเบิกเกินสิทธิ์ AI ช่วยกรองตามระเบียบ</div></div>
+
+    <div class="col"><div class="no">04</div><h3>กรณีเสียชีวิต</h3>
+      <div class="lbl">วันนี้</div><div class="now">ไม่รู้ว่าผู้มีสิทธิ์เสียชีวิต จ่ายต่อไปก่อน แล้วตามเรียกเงินคืนจากญาติ</div>
+      <div class="line"></div>
+      <div class="lbl acc">หลังมีระบบ</div><div class="next">ตรวจสถานะกับกรมการปกครอง หยุดจ่ายทันที คำนวณเงินช่วยพิเศษให้*</div></div>
+  </div>
+</section>
+
+<footer>
+  <div><b>* สมมติฐาน รอลูกค้ายืนยัน</b> · ตัวเลขกำลังพล บำนาญ ปริมาณรายการ และอัตราเงินช่วยพิเศษ (ในที่ประชุมกล่าวถึงทั้ง 10 เท่า และ 3–30 เท่า)</div>
+  <div><b>นอกขอบเขตระยะนี้</b> · สวัสดิการข้าราชการประจำ → Phase 2</div>
+</footer>
+</body></html>
